@@ -1,33 +1,53 @@
 package com.example.classmanager.controller;
 
 import com.example.classmanager.model.Teacher;
+import com.example.classmanager.repositories.TeacherRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/teachers")
 public class TeacherController {
 
-    private final List<Teacher> teachers = new ArrayList<>();
+    @Autowired
+    private TeacherRepository teacherRepository;
 
     @GetMapping
     public List<Teacher> getAllTeachers() {
-        return teachers;
+        return teacherRepository.findAll();
     }
 
     @GetMapping("/{id}")
     public Teacher getTeacherById(@PathVariable String id) {
-        return teachers.stream()
-                .filter(t -> t.getTeacherId().equals(id))
-                .findFirst()
-                .orElse(null);
+        return teacherRepository.findById(id).orElse(null);
     }
 
     @PostMapping
-    public Teacher addTeacher(@RequestBody Teacher teacher) {
-        teachers.add(teacher);
-        return teacher;
+    public Teacher createTeacher(@RequestBody Teacher teacher) {
+        return teacherRepository.save(teacher);
+    }
+
+    @PutMapping("/{id}")
+    public Teacher updateTeacher(@PathVariable String id, @RequestBody Teacher updatedTeacher) {
+        Optional<Teacher> teacherOpt = teacherRepository.findById(id);
+        if (teacherOpt.isPresent()) {
+            Teacher teacher = teacherOpt.get();
+            teacher.setClassesTaught(updatedTeacher.getClassesTaught());
+            return teacherRepository.save(teacher);
+        } else {
+            return null;
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteTeacher(@PathVariable String id) {
+        if (teacherRepository.existsById(id)) {
+            teacherRepository.deleteById(id);
+            return "Teacher deleted: " + id;
+        } else {
+            return "Teacher not found";
+        }
     }
 }

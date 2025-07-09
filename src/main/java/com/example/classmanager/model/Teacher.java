@@ -1,9 +1,16 @@
 package com.example.classmanager.model;
 
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
 import java.util.List;
 
+@Entity
 public class Teacher {
+    @Id
     private String teacherId;
+    @ElementCollection
     private List<String> classesTaught;
 
     public Teacher() {}
